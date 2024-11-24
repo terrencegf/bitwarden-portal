@@ -46,6 +46,51 @@ fi
 echo "########## Start of Backup process ##########"
 sleep 1
 
+#-------------------#
+# Helper Functions  #
+#-------------------#
+
+encrypt_file() {
+    local input_file="$1"
+    local output_file="$2"
+    local password="$3"
+
+    local input_file_name=$(echo "$input_file" | sed 's/\/app\///g')
+    local output_file_name=$(echo "$output_file" | sed 's/\/app\///g')
+
+    echo "# Encrypting file: $input_file_name"
+
+    openssl enc -aes-256-cbc -salt -pbkdf2 -pass pass:"$password" -in "$input_file" -out "$output_file"
+
+    if [ $? -ne 0 ]; then
+        echo "✕ Error: Failed to encrypt file $input_file"
+        exit 1
+    fi
+    
+    echo "# Encryption successful: $output_file_name"
+}
+
+decrypt_file() {
+    local input_file="$1"
+    local output_file="$2"
+    local password="$3"
+
+    local input_file_name=$(echo "$input_file" | sed 's/\/app\///g')
+    local output_file_name=$(echo "$output_file" | sed 's/\/app\///g')
+
+    echo "# Decrypting file: $input_file_name"
+
+    openssl enc -aes-256-cbc -d -pbkdf2 -pass pass:"$password" -in "$input_file" -out "$output_file"
+
+    if [ $? -ne 0 ]; then
+        echo "✕ Error: Failed to decrypt file $input_file"
+        exit 1
+    fi
+
+    echo "# Decryption successful: $output_file_name"
+}
+
+
 #--------#
 # BACKUP #
 #--------#
@@ -139,16 +184,11 @@ fi
 #-----------------------#
 
 # Encrypt the exported file
-echo "# Encrypting exported file..."
-openssl enc -aes-256-cbc -salt -pbkdf2 -pass pass:"$ARCHIVE_PASSWORD" -in "$SOURCE_OUTPUT_FILE_PATH" -out "$ENCRYPTED_SOURCE_OUTPUT_FILE_PATH"
-if [ $? -ne 0 ]; then
-    echo "✕ Error: Failed to encrypt the exported file."
-    exit 1
-fi
+encrypt_file "$SOURCE_OUTPUT_FILE_PATH" "$ENCRYPTED_SOURCE_OUTPUT_FILE_PATH" "$ARCHIVE_PASSWORD"
 
 # Remove the unencrypted file
+echo "# Removed unencrypted file"
 rm -f "$SOURCE_OUTPUT_FILE_PATH"
-echo "# Encrypted exported file: $ENCRYPTED_SOURCE_OUTPUT_FILE_PATH"
 
 sleep 1
 
@@ -240,13 +280,7 @@ fi
 
 # Encrypt the exported file
 echo "# Encrypting exported file..."
-openssl enc -aes-256-cbc -salt -pbkdf2 -pass pass:"$ARCHIVE_PASSWORD" -in "$DEST_OUTPUT_FILE_PATH" -out "$ENCRYPTED_DEST_OUTPUT_FILE_PATH"
-if [ $? -ne 0 ]; then
-    echo "✕ Error: Failed to encrypt the exported file."
-    exit 1
-fi
-
-echo "# Encrypted exported file: $ENCRYPTED_DEST_OUTPUT_FILE_PATH"
+encrypt_file "$DEST_OUTPUT_FILE_PATH" "$ENCRYPTED_DEST_OUTPUT_FILE_PATH" "$ARCHIVE_PASSWORD"
 
 sleep 1
 
@@ -326,6 +360,7 @@ echo "# Vault purged successfully"
 echo "# Total removed -> Folders:[${total_folders:-"0"}] - Items:[${total_items:-"0"}] - Attachments:[${total_attach:-"0"}]"
 
 # Remove the unencrypted file
+echo "# Removed unencrypted file"
 rm -f "$DEST_OUTPUT_FILE_PATH"
 
 sleep 1
@@ -339,12 +374,8 @@ DECRYPTED_SOURCE_OUTPUT_FILE_PATH="$SOURCE_OUTPUT_FILE_PATH" #Latest source back
 
 # Decrypt the latest backup
 echo "# Decrypting the latest backup..."
-openssl enc -aes-256-cbc -d -pbkdf2 -pass pass:"$ARCHIVE_PASSWORD" -in "$DEST_LATEST_BACKUP" -out "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
+decrypt_file "$DEST_LATEST_BACKUP" "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH" "$ARCHIVE_PASSWORD"
 
-if [ $? -ne 0 ]; then
-    echo "✕ Error: Failed to decrypt the backup"
-    exit 1
-fi
 
 # Import the decrypted backup
 echo "# Importing the decrypted backup: $DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
