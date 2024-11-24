@@ -13,7 +13,7 @@ DEST_CLIENT_ID="$DEST_CLIENT_ID"  # Client ID di Vaultwarden
 DEST_CLIENT_SECRET="$DEST_CLIENT_SECRET"  # Client Secret di Vaultwarden
 DEST_SERVER="$DEST_SERVER"
 
-#ARCHIVE_PASSWORD="xxxxxxxxxxxxxxxxxxxxxxxxx"
+ARCHIVE_PASSWORD="$ARCHIVE_PASSWORD"
 
 # Minimum backup file to mantain
 MIN_FILES=5
@@ -54,6 +54,7 @@ sleep 1
 SOURCE_EXPORT_OUTPUT_BASE="bw_export_source_"
 SOURCE_NEW_FILENAME="$SOURCE_EXPORT_OUTPUT_BASE$TIMESTAMP.json"
 SOURCE_OUTPUT_FILE_PATH="$SOURCE_FOLDER/$SOURCE_NEW_FILENAME"
+ENCRYPTED_SOURCE_OUTPUT_FILE_PATH="$SOURCE_OUTPUT_FILE_PATH.enc"
 
 # Delete previous backups over 30 days old ######################################################################
 
@@ -133,7 +134,21 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "# Exported items file: backups/source/$SOURCE_NEW_FILENAME"
+#-----------------------#
+# SOURCE EXPORT ENCRYPT #
+#-----------------------#
+
+# Encrypt the exported file
+echo "# Encrypting exported file..."
+openssl enc -aes-256-cbc -salt -pbkdf2 -pass pass:"$ARCHIVE_PASSWORD" -in "$SOURCE_OUTPUT_FILE_PATH" -out "$ENCRYPTED_SOURCE_OUTPUT_FILE_PATH"
+if [ $? -ne 0 ]; then
+    echo "✕ Error: Failed to encrypt the exported file."
+    exit 1
+fi
+
+# Remove the unencrypted file
+rm -f "$SOURCE_OUTPUT_FILE_PATH"
+echo "# Encrypted exported file: $ENCRYPTED_SOURCE_OUTPUT_FILE_PATH"
 
 sleep 1
 
@@ -167,6 +182,7 @@ echo "########## Start of Restore process ##########"
 DEST_EXPORT_OUTPUT_BASE="bw_export_dest_"
 DEST_NEW_FILENAME="$DEST_EXPORT_OUTPUT_BASE$TIMESTAMP.json" #DEST_OUTPUT_FILE
 DEST_OUTPUT_FILE_PATH="$DEST_FOLDER/$DEST_NEW_FILENAME"
+ENCRYPTED_DEST_OUTPUT_FILE_PATH="$DEST_OUTPUT_FILE_PATH.enc"
 
 
 #------------#
@@ -218,13 +234,25 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "# Exported items file: backups/dest/$DEST_NEW_FILENAME"
+#---------------------#
+# DEST EXPORT ENCRYPT #
+#---------------------#
+
+# Encrypt the exported file
+echo "# Encrypting exported file..."
+openssl enc -aes-256-cbc -salt -pbkdf2 -pass pass:"$ARCHIVE_PASSWORD" -in "$DEST_OUTPUT_FILE_PATH" -out "$ENCRYPTED_DEST_OUTPUT_FILE_PATH"
+if [ $? -ne 0 ]; then
+    echo "✕ Error: Failed to encrypt the exported file."
+    exit 1
+fi
+
+echo "# Encrypted exported file: $ENCRYPTED_DEST_OUTPUT_FILE_PATH"
 
 sleep 1
 
-#--------------#
-# DEST REMOMVE #
-#--------------#
+#-----------------#
+# DEST REMOVE OLD #
+#-----------------#
 
 # Find and remove all folders, items, attachments, and org collections
 echo "# Removing items from the destination vault... This might take some time."
@@ -297,22 +325,38 @@ fi
 echo "# Vault purged successfully"
 echo "# Total removed -> Folders:[${total_folders:-"0"}] - Items:[${total_items:-"0"}] - Attachments:[${total_attach:-"0"}]"
 
+# Remove the unencrypted file
+rm -f "$DEST_OUTPUT_FILE_PATH"
+
 sleep 1
 
-#-------------#
-# DEST IMPORT #
-#-------------#
+#---------------------------#
+# DEST IMPORT SOURCE BACKUP #
+#---------------------------#
 
-DEST_LATEST_BACKUP="$SOURCE_OUTPUT_FILE_PATH"
+DEST_LATEST_BACKUP="$ENCRYPTED_SOURCE_OUTPUT_FILE_PATH" #Latest source backup encrypted
+DECRYPTED_SOURCE_OUTPUT_FILE_PATH="$SOURCE_OUTPUT_FILE_PATH" #Latest source backup
 
-# Import the latest backup
-echo "# Importing the latest backup: $DEST_LATEST_BACKUP"
-bw --session "$DEST_SESSION" --raw import bitwardenjson "$DEST_LATEST_BACKUP"
+# Decrypt the latest backup
+echo "# Decrypting the latest backup..."
+openssl enc -aes-256-cbc -d -pbkdf2 -pass pass:"$ARCHIVE_PASSWORD" -in "$DEST_LATEST_BACKUP" -out "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
 
+if [ $? -ne 0 ]; then
+    echo "✕ Error: Failed to decrypt the backup"
+    exit 1
+fi
+
+# Import the decrypted backup
+echo "# Importing the decrypted backup: $DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
+bw --session "$DEST_SESSION" --raw import bitwardenjson "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
 if [ $? -ne 0 ]; then
     echo "✕ Error: Failed to import data"
     exit 1
 fi
+
+# Remove the decrypted file
+rm -f "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
+echo "# Decrypted backup imported and removed"
 
 
 #-------------#
