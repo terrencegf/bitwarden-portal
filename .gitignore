@@ -1,0 +1,6 @@
+backups/
+
+certs/*
+!certs/README.md
+
+.env
