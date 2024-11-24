@@ -2,35 +2,18 @@
 
 TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
 
-
-#------#
-# INIT #
-#------#
-
-# Create folder if not exists 
-SOURCE_FOLDER="/app/backups/source"
-DEST_FOLDER="/app/backups/dest"
-
-mkdir -p "$SOURCE_FOLDER"
-
-if [ $? -ne 0 ]; then
-    echo "✕ Error: Failed to create folder /backups/source."
-    exit 1
-fi
-
-mkdir -p "$DEST_FOLDER"
-
-if [ $? -ne 0 ]; then
-    echo "✕ Error: Failed to create folder /backups/dest."
-    exit 1
-fi
-
-echo "########## Start of Backup process ##########"
-sleep 1
-
 #-------------------#
 # Helper Functions  #
 #-------------------#
+
+fix_permissions() {
+    local puid="$1"
+    local pgid="$2"
+    local folder="$3"
+
+    chown -R "$puid:$pgid" "$folder"
+}
+
 
 encrypt_file() {
     local input_file="$1"
@@ -114,6 +97,36 @@ purge_folder() {
 }
 
 
+#------#
+# INIT #
+#------#
+
+# Create folder if not exists 
+SOURCE_FOLDER="/app/backups/source"
+DEST_FOLDER="/app/backups/dest"
+
+mkdir -p "$SOURCE_FOLDER"
+
+if [ $? -ne 0 ]; then
+    echo "✕ Error: Failed to create folder /backups/source."
+    exit 1
+fi
+
+mkdir -p "$DEST_FOLDER"
+
+if [ $? -ne 0 ]; then
+    echo "✕ Error: Failed to create folder /backups/dest."
+    exit 1
+fi
+
+echo "########## Start of Backup process ##########"
+
+echo "# Fixing permissions on backups folder..."
+fix_permissions "$PUID" "$PGID" "/app/backups"
+
+sleep 1
+
+
 #--------#
 # BACKUP #
 #--------#
@@ -153,6 +166,7 @@ bw config server "$SOURCE_SERVER"
 bw login "$SOURCE_ACCOUNT" --apikey --raw
 
 if [ $? -ne 0 ]; then
+    printf "\n"
     echo "✕ Error: Failed to log in to source server with account ${SOURCE_ACCOUNT} at ${SOURCE_SERVER}."
     exit 1
 fi
@@ -186,12 +200,15 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+fix_permissions "$PUID" "$PGID" "$SOURCE_OUTPUT_FILE_PATH"
+
 #-----------------------#
 # SOURCE EXPORT ENCRYPT #
 #-----------------------#
 
 # Encrypt the exported file
 encrypt_file "$SOURCE_OUTPUT_FILE_PATH" "$ENCRYPTED_SOURCE_OUTPUT_FILE_PATH" "$ARCHIVE_PASSWORD"
+fix_permissions "$PUID" "$PGID" "$ENCRYPTED_SOURCE_OUTPUT_FILE_PATH"
 
 # Remove the unencrypted file
 echo "# Removed unencrypted file."
@@ -288,6 +305,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+fix_permissions "$PUID" "$PGID" "$DEST_OUTPUT_FILE_PATH"
+
 #---------------------#
 # DEST EXPORT ENCRYPT #
 #---------------------#
@@ -295,6 +314,7 @@ fi
 # Encrypt the exported file
 echo "# Encrypting exported file..."
 encrypt_file "$DEST_OUTPUT_FILE_PATH" "$ENCRYPTED_DEST_OUTPUT_FILE_PATH" "$ARCHIVE_PASSWORD"
+fix_permissions "$PUID" "$PGID" "$ENCRYPTED_DEST_OUTPUT_FILE_PATH"
 
 sleep 1
 
@@ -389,6 +409,7 @@ DECRYPTED_SOURCE_OUTPUT_FILE_PATH="$SOURCE_OUTPUT_FILE_PATH" #Latest source back
 # Decrypt the latest backup
 echo "# Decrypting the latest backup..."
 decrypt_file "$DEST_LATEST_BACKUP" "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH" "$ARCHIVE_PASSWORD"
+fix_permissions "$PUID" "$PGID" "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
 
 
 # Import the decrypted backup
