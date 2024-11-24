@@ -1,6 +1,9 @@
 # Use a Node.js base image
 FROM alpine:latest
 
+ENV TZ="Europe/Berlin"
+RUN apk --no-cache add tzdata
+
 # Set working directory
 WORKDIR /app
 
@@ -11,7 +14,10 @@ RUN apk --no-cache add python3 curl bash ca-certificates openssl ncurses coreuti
 RUN npm install -g @bitwarden/cli
 
 # Define a default cron schedule
-ENV CRON_SCHEDULE="57 23 * * *"
+ENV CRON_SCHEDULE="0 0 * * *"
+
+# Define the user which will run the script
+ENV PUID="root"
 
 # Create a cron job file with the defined schedule
 RUN echo "$CRON_SCHEDULE root /app/backup.sh > /var/log/cron.log 2>&1" > /etc/crontabs/root

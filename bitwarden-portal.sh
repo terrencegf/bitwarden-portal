@@ -1,25 +1,6 @@
 #!/bin/bash
 
-# Configurations (from .env file)
-#SOURCE_ACCOUNT="$SOURCE_ACCOUNT"  # Email di Bitwarden
-#SOURCE_PASSWORD="$SOURCE_PASSWORD"  # Password di Bitwarden
-#SOURCE_CLIENT_ID="$SOURCE_CLIENT_ID"  # Client ID di Bitwarden
-#SOURCE_CLIENT_SECRET="$SOURCE_CLIENT_SECRET"  # Client Secret di Bitwarden
-#SOURCE_SERVER="$SOURCE_SERVER"
-
-#DEST_ACCOUNT="$DEST_ACCOUNT"  # Email di Vaultwarden
-#DEST_PASSWORD="$DEST_PASSWORD"  # Password di Vaultwarden
-#DEST_CLIENT_ID="$DEST_CLIENT_ID"  # Client ID di Vaultwarden
-#DEST_CLIENT_SECRET="$DEST_CLIENT_SECRET"  # Client Secret di Vaultwarden
-#DEST_SERVER="$DEST_SERVER"
-
-#ARCHIVE_PASSWORD="$ARCHIVE_PASSWORD"
-
-# Minimum backup file to mantain
-#MIN_FILES="$MIN_FILES" # Numero massimo di file da mantenere
-#RETENTION_DAYS="$RETENTION_DAYS" # Giorni di retention per i file vecchi
 TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
-
 
 
 #------#
