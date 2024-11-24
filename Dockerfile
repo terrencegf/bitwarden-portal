@@ -30,5 +30,4 @@ RUN update-ca-certificates
 RUN chmod +x /app/backup.sh
 
 # Start cron and log output to console
-#CMD ["sh", "-c", "echo \"$CRON_SCHEDULE /app/backup.sh > /proc/1/fd/1 2>&1\" > /etc/crontabs/root && crond -f -L /dev/stdout"]
-CMD ["bash", "-c", "/app/backup.sh"]
+CMD ["sh", "-c", "echo \"$CRON_SCHEDULE /app/backup.sh > /proc/1/fd/1 2>&1\" > /etc/crontabs/root && crond -f -L /dev/stdout"]

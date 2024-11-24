@@ -1,22 +1,23 @@
 #!/bin/bash
 
 # Configurations (from .env file)
-SOURCE_ACCOUNT="$SOURCE_ACCOUNT"  # Email di Bitwarden
-SOURCE_PASSWORD="$SOURCE_PASSWORD"  # Password di Bitwarden
-SOURCE_CLIENT_ID="$SOURCE_CLIENT_ID"  # Client ID di Bitwarden
-SOURCE_CLIENT_SECRET="$SOURCE_CLIENT_SECRET"  # Client Secret di Bitwarden
-SOURCE_SERVER="$SOURCE_SERVER"
+#SOURCE_ACCOUNT="$SOURCE_ACCOUNT"  # Email di Bitwarden
+#SOURCE_PASSWORD="$SOURCE_PASSWORD"  # Password di Bitwarden
+#SOURCE_CLIENT_ID="$SOURCE_CLIENT_ID"  # Client ID di Bitwarden
+#SOURCE_CLIENT_SECRET="$SOURCE_CLIENT_SECRET"  # Client Secret di Bitwarden
+#SOURCE_SERVER="$SOURCE_SERVER"
 
-DEST_ACCOUNT="$DEST_ACCOUNT"  # Email di Vaultwarden
-DEST_PASSWORD="$DEST_PASSWORD"  # Password di Vaultwarden
-DEST_CLIENT_ID="$DEST_CLIENT_ID"  # Client ID di Vaultwarden
-DEST_CLIENT_SECRET="$DEST_CLIENT_SECRET"  # Client Secret di Vaultwarden
-DEST_SERVER="$DEST_SERVER"
+#DEST_ACCOUNT="$DEST_ACCOUNT"  # Email di Vaultwarden
+#DEST_PASSWORD="$DEST_PASSWORD"  # Password di Vaultwarden
+#DEST_CLIENT_ID="$DEST_CLIENT_ID"  # Client ID di Vaultwarden
+#DEST_CLIENT_SECRET="$DEST_CLIENT_SECRET"  # Client Secret di Vaultwarden
+#DEST_SERVER="$DEST_SERVER"
 
-ARCHIVE_PASSWORD="$ARCHIVE_PASSWORD"
+#ARCHIVE_PASSWORD="$ARCHIVE_PASSWORD"
 
 # Minimum backup file to mantain
-MIN_FILES=5
+#MIN_FILES="$MIN_FILES" # Numero massimo di file da mantenere
+#RETENTION_DAYS="$RETENTION_DAYS" # Giorni di retention per i file vecchi
 TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
 
 
@@ -32,14 +33,14 @@ DEST_FOLDER="/app/backups/dest"
 mkdir -p "$SOURCE_FOLDER"
 
 if [ $? -ne 0 ]; then
-    echo "✕ Error: Failed to create folder /backups/source"
+    echo "✕ Error: Failed to create folder /backups/source."
     exit 1
 fi
 
 mkdir -p "$DEST_FOLDER"
 
 if [ $? -ne 0 ]; then
-    echo "✕ Error: Failed to create folder /backups/dest"
+    echo "✕ Error: Failed to create folder /backups/dest."
     exit 1
 fi
 
@@ -58,16 +59,16 @@ encrypt_file() {
     local input_file_name=$(echo "$input_file" | sed 's/\/app\///g')
     local output_file_name=$(echo "$output_file" | sed 's/\/app\///g')
 
-    echo "# Encrypting file: $input_file_name"
+    echo "# Encrypting file: $input_file_name."
 
     openssl enc -aes-256-cbc -salt -pbkdf2 -pass pass:"$password" -in "$input_file" -out "$output_file"
 
     if [ $? -ne 0 ]; then
-        echo "✕ Error: Failed to encrypt file $input_file"
+        echo "✕ Error: Failed to encrypt file $input_file."
         exit 1
     fi
     
-    echo "# Encryption successful: $output_file_name"
+    echo "# Encryption successful: $output_file_name."
 }
 
 decrypt_file() {
@@ -78,16 +79,57 @@ decrypt_file() {
     local input_file_name=$(echo "$input_file" | sed 's/\/app\///g')
     local output_file_name=$(echo "$output_file" | sed 's/\/app\///g')
 
-    echo "# Decrypting file: $input_file_name"
+    echo "# Decrypting file: $input_file_name."
 
     openssl enc -aes-256-cbc -d -pbkdf2 -pass pass:"$password" -in "$input_file" -out "$output_file"
 
     if [ $? -ne 0 ]; then
-        echo "✕ Error: Failed to decrypt file $input_file"
+        echo "✕ Error: Failed to decrypt file $input_file."
         exit 1
     fi
 
-    echo "# Decryption successful: $output_file_name"
+    echo "# Decryption successful: $output_file_name."
+}
+
+purge_folder() {
+    local folder_path="$1"
+    local max_files="$2"
+    local retention_days="$3"
+
+    local folder_name=$(echo "$folder_path" | sed 's/\/app\///g')
+
+    echo "# Purging files in folder: $folder_name."
+
+    # Find all files in the folder sorted by modification time (oldest first)
+    all_files=$(find "$folder_path" -type f -printf "%T@ %p\n" | sort -n)
+
+    # Find files older than the retention period
+    old_files=$(find "$folder_path" -type f -mtime +"$retention_days")
+
+    # Find files newer than the retention period
+    recent_files=$(find "$folder_path" -type f -mtime -"$retention_days")
+
+    # Check if there are no files in the folder
+    if [ -z "$all_files" ]; then
+        echo "# No files found in the folder: $folder_path. Nothing to purge."
+        return
+    fi
+
+    # Case 1: If there are recent files, delete only the files older than retention_days
+    if [ -n "$recent_files" ]; then
+        if [ -n "$old_files" ]; then
+            echo "# Found files modified within the last $retention_days days. Deleting only older files..."
+            find "$folder_path" -type f -mtime +"$retention_days" -exec rm -f {} +
+        else
+            echo "# No files older than $retention_days days to delete. Nothing to purge."
+        fi
+    else
+        # Case 2: If all files are older than retention_days, keep only the most recent max_files files
+        echo "# All files are older than $retention_days days. Keeping the most recent $max_files files..."
+        echo "$all_files" | head -n -"$max_files" | awk '{print $2}' | xargs -I{} rm -f "{}"
+    fi
+
+    echo "# Purge completed for $folder_name."
 }
 
 
@@ -95,37 +137,21 @@ decrypt_file() {
 # BACKUP #
 #--------#
 
+echo "# Start Time: $(date)"
+
 # Set the filename for our json export as variable
 SOURCE_EXPORT_OUTPUT_BASE="bw_export_source_"
 SOURCE_NEW_FILENAME="$SOURCE_EXPORT_OUTPUT_BASE$TIMESTAMP.json"
 SOURCE_OUTPUT_FILE_PATH="$SOURCE_FOLDER/$SOURCE_NEW_FILENAME"
 ENCRYPTED_SOURCE_OUTPUT_FILE_PATH="$SOURCE_OUTPUT_FILE_PATH.enc"
 
-# Delete previous backups over 30 days old ######################################################################
 
-#echo "# Deleting previous backups older than 30 days... "
-#current_date=$(date +%Y-%m-%d)
-#source_export_files=$(find /app/backups/source -type f -name "$SOURCE_EXPORT_OUTPUT_BASE*.tar.gz.enc")
-#find $source_export_files -type f -mtime +30 -exec rm -f {} +
-#rm -f -R $SOURCE_EXPORT_OUTPUT_BASE*.json
+#--------------#
+# SOURCE PURGE #
+#--------------#
 
-# Find all file in directory ordered by date (from most recend to oldest)
-#FILES=$(find "$SOURCE_FOLDER" -type f -mtime +30 -printf "%T@ %p\n" | sort -n | awk '{print $2}')
-
-# Count all files in directory
-#TOTAL_FILES=$(find "$SOURCE_FOLDER" -type f | wc -l)
-
-# Check if there are more file than minimum
-#if [ "$TOTAL_FILES" -le "$MIN_FILES" ]; then
-#    echo "# There are $TOTAL_FILES files, less than the minimum limit of $MIN_FILES. No file will be deleted."
-#else
-    # Calcola quanti file eliminare
-#    FILES_TO_DELETE=$(($TOTAL_FILES - $MIN_FILES))
-
-    # Elimina solo i file più vecchi di 90 giorni, rispettando il limite minimo
-#    echo "$FILES" | head -n "$FILES_TO_DELETE" | xargs -I{} rm -f "{}"
-#    echo "# Old backups purged"
-#fi
+purge_folder "$SOURCE_FOLDER" "$MIN_FILES" "$RETENTION_DAYS"
+sleep 1
 
 
 #--------------#
@@ -146,7 +172,7 @@ bw config server "$SOURCE_SERVER"
 bw login "$SOURCE_ACCOUNT" --apikey --raw
 
 if [ $? -ne 0 ]; then
-    echo "✕ Error: Failed to log in to source server with account ${SOURCE_ACCOUNT} at ${SOURCE_SERVER}"
+    echo "✕ Error: Failed to log in to source server with account ${SOURCE_ACCOUNT} at ${SOURCE_SERVER}."
     exit 1
 fi
 
@@ -187,7 +213,7 @@ fi
 encrypt_file "$SOURCE_OUTPUT_FILE_PATH" "$ENCRYPTED_SOURCE_OUTPUT_FILE_PATH" "$ARCHIVE_PASSWORD"
 
 # Remove the unencrypted file
-echo "# Removed unencrypted file"
+echo "# Removed unencrypted file."
 rm -f "$SOURCE_OUTPUT_FILE_PATH"
 
 sleep 1
@@ -226,6 +252,13 @@ ENCRYPTED_DEST_OUTPUT_FILE_PATH="$DEST_OUTPUT_FILE_PATH.enc"
 
 
 #------------#
+# DEST PURGE #
+#------------#
+
+purge_folder "$DEST_FOLDER" "$MIN_FILES" "$RETENTION_DAYS"
+sleep 1
+
+#------------#
 # DEST LOGIN #
 #------------#
 
@@ -240,7 +273,7 @@ bw config server "$DEST_SERVER"
 bw login "$DEST_ACCOUNT" --apikey --raw
 
 if [ $? -ne 0 ]; then
-    echo "✕ Error: Failed to log in to destination server with account ${DEST_ACCOUNT} at ${DEST_SERVER}"
+    echo "✕ Error: Failed to log in to destination server with account ${DEST_ACCOUNT} at ${DEST_SERVER}."
     exit 1
 fi
 
@@ -295,7 +328,7 @@ echo "# Removing items from the destination vault... This might take some time."
 total_folders=$(jq '.folders | length' "$DEST_OUTPUT_FILE_PATH")
 
 if [ -z "$total_folders" ] || [ "$total_folders" -eq 0 ]; then
-    echo "# No folders found to delete"
+    echo "# No folders found to delete."
 else
     current_folder=0
 
@@ -308,7 +341,7 @@ else
         bw --session "$DEST_SESSION" --raw delete -p folder "$id"
     done
 
-    echo "# Folders deleted successfully"
+    echo "# Folders deleted successfully."
 fi
 
 sleep 1
@@ -317,7 +350,7 @@ sleep 1
 total_items=$(jq '.items | length' "$DEST_OUTPUT_FILE_PATH")
 
 if [ -z "$total_items" ] || [ "$total_items" -eq 0 ]; then
-    echo "# No items found to delete"
+    echo "# No items found to delete."
 else
     current_item=0
 
@@ -330,7 +363,7 @@ else
         bw --session "$DEST_SESSION" --raw delete -p item "$id"
     done
 
-    echo "# Items deleted successfully"
+    echo "# Items deleted successfully."
 fi
 
 sleep 1
@@ -352,11 +385,11 @@ else
         bw --session "$DEST_SESSION" --raw delete -p attachment "$id"
     done
 
-    echo "# Attachments deleted successfully"
+    echo "# Attachments deleted successfully."
 fi
 
 
-echo "# Vault purged successfully"
+echo "# Vault purged successfully."
 echo "# Total removed -> Folders:[${total_folders:-"0"}] - Items:[${total_items:-"0"}] - Attachments:[${total_attach:-"0"}]"
 
 # Remove the unencrypted file
@@ -381,13 +414,13 @@ decrypt_file "$DEST_LATEST_BACKUP" "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH" "$ARCHIV
 echo "# Importing the decrypted backup: $DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
 bw --session "$DEST_SESSION" --raw import bitwardenjson "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
 if [ $? -ne 0 ]; then
-    echo "✕ Error: Failed to import data"
+    echo "✕ Error: Failed to import data."
     exit 1
 fi
 
 # Remove the decrypted file
 rm -f "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
-echo "# Decrypted backup imported and removed"
+echo "# Decrypted backup imported and removed."
 
 
 #-------------#
