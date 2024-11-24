@@ -64,7 +64,8 @@ The script uses the following environment variables for backup and restore confi
 - **Server Configuration**
   - `SOURCE_SERVER`: URL of the Bitwarden/Vaultwarden server for the source vault.
   - `DEST_SERVER`: URL of the Bitwarden/Vaultwarden server for the destination vault.  
-    **Note**: You can use both Bitwarden and Vaultwarden for source and destination. If your are using a self-hosted Vaultwarden with a **self-signed certificate** for the domain see [Self-Signed Certificate](#self-signed-certificate) section below.
+
+**Note**: You can use both Bitwarden and Vaultwarden for source and destination. If your are using a self-hosted Vaultwarden with a **self-signed certificate** for the domain see [Self-Signed Certificate](#self-signed-certificate) section below.
 
 - **Security Parameters**
   - `ARCHIVE_PASSWORD`: Password used to encrypt and decrypt backup files.
