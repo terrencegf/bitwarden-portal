@@ -18,6 +18,7 @@
   - [Docker Compose with .env file](#docker-compose-with-env-file)
   - [Docker Compose with env variables](#docker-compose-with-env-variables)
   - [Build Locally](#build-locally)
+- [Roadmap](#roadap)
 - [[WIP] Self-Signed Certificate](#self-signed-certificate)
 
 ## Description
@@ -172,6 +173,11 @@ services:
     ```bash
     docker compose up -d
     ```
+    
+## Roadmap
+- Self-signed certificate with docker-compose (not only by local build).
+- Output logs.
+- Attachments backup and transfer
 
 ## Self-Signed Certificate
 **[WIP**]  
