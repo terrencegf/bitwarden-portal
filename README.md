@@ -151,9 +151,9 @@ services:
             # The users belongs to process and files.
             - PUID="1000"
             - PGID="1000"
-            # Your retention policy for backup files. Backup older than this            value will be deleted.
+            # Your retention policy for backup files. Backup older than this value will be deleted.
             - RETENTION_DAYS=30
-            # If all your backups are older than RETENTION_DAYS, keep the           following minimum files.
+            # If all your backups are older than RETENTION_DAYS, keep the following minimum files.
             - MIN_FILES=10
         volumes:
             - your-backups-folder:/app/backups
