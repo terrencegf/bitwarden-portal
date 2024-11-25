@@ -177,5 +177,5 @@ services:
 **[WIP**]  
 If you are using a local domain with a self-signed certificate for SSL, you need to put your certificate inside the `Certs` folder.
 
-- **Build image locally**: just put the `.crt` file inside the `Certs` folder.
+- **Build image locally**: just put the `.crt` file inside the `certs` folder.
 - **Usign Docker Hub Image**: TO-DO
