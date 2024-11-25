@@ -84,7 +84,7 @@ The script uses the following environment variables for backup and restore confi
 **Note**: You can use both Bitwarden and Vaultwarden for source and destination. If your are using a self-hosted Vaultwarden with a **self-signed certificate** for the domain see [Self-Signed Certificate](#self-signed-certificate) section below.
 
 - **Security Parameters**
-  - `ARCHIVE_PASSWORD`: Password used to encrypt and decrypt backup files.
+  - `ENCRYPTION_PASSWORD`: Password used to encrypt and decrypt backup files.
 
 - **File Management**
   - `PUID`: User ID to set file permissions.
@@ -132,7 +132,7 @@ services:
             # Your timezone.
             - TZ="Europe/Berlin"
             # This is the password used to encrypt and decrypt the backup files.
-            - ARCHIVE_PASSWORD="strong-password"
+            - ENCRYPTION_PASSWORD="strong-password"
             # Your Bitwarden/Vaultwarden SOURCE login info.
             - SOURCE_ACCOUNT="source@mail.com"
             - SOURCE_PASSWORD="source-password"
