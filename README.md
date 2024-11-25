@@ -1,9 +1,23 @@
 # Bitwarden Portal
 
 
-![](logo.png)
+<p align="center">
+  <img src="logo.png" alt=""/>
+</p>
 
 [![Latest Version - 1.0.0](https://img.shields.io/badge/Latest_Version-1.0.0-0db7ed)](https://hub.docker.com/r/reaper0x1/bitwarden-portal)
+
+## Table of Contents
+- [Description](#description)
+- [Features](#features)
+- [How It Works](#how-it-works)
+- [Environment Variables](#environment-variables)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Docker Compose with .env file](#docker-compose-with-.env-file)
+  - [Docker Compose with env variables](#docker-compose-with-env-variables)
+  - [Build Locally](#build-locally)
+- [[WIP] Self-Signed Certificate](#self-signed-certificate)
 
 ## Description
 
@@ -37,13 +51,6 @@ Additionally, the script securely deletes outdated files while maintaining a min
 3. **Destination Vault Restore**
    - Decrypts the latest source vault backup.
    - Imports the decrypted backup into the destination vault.
-
-## Prerequisites
-
-1. **🐋 Docker** must be installed and configured.
-2. Configured access for source and destination vaults (using API Key credentials).
-    - To get both source and destination Client ID and Client Secret you need to go in `Account Settings` -> `Security` -> `Keys`.
-
 
 
 ## Environment Variables
@@ -89,6 +96,12 @@ The script uses the following environment variables for backup and restore confi
 
 
 ## Getting Started
+
+### Prerequisites
+
+1. **🐋 Docker** must be installed and configured.
+2. Configured access for source and destination vaults (using API Key credentials).
+    - To get both source and destination Client ID and Client Secret you need to go in `Account Settings` -> `Security` -> `Keys`.
 
 ### Docker Compose with .env file
 ```yaml
