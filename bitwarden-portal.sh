@@ -65,6 +65,8 @@ purge_folder() {
     if [ "$ENABLE_PRUNING" == "false" ]; then
         echo "# Pruning disabled, skipping..."
         return
+    elif [ "$ENABLE_PRUNING" != "true" ]; then
+        echo "The var ENABLE_PRUNING is invalid (only 'true' or 'false' is accepted): $ENABLE_PRUNING"
     fi
 
     echo "# Purging files in folder: $folder_name."
