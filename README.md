@@ -6,6 +6,7 @@
 </p>
 
 [![Latest Version - 1.0.0](https://img.shields.io/badge/Latest_Version-1.0.0-0db7ed)](https://hub.docker.com/r/reaper0x1/bitwarden-portal)
+[![Github - Official](https://img.shields.io/badge/Github-official-d97f21)](https://github.com/Reaper0x1/bitwarden-portal)
 
 ## Table of Contents
 - [Description](#description)
