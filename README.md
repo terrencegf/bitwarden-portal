@@ -18,7 +18,7 @@
   - [Docker Compose with .env file](#docker-compose-with-env-file)
   - [Docker Compose with env variables](#docker-compose-with-env-variables)
   - [Build Locally](#build-locally)
-- [Roadmap](#roadap)
+- [Roadmap](#roadmap)
 - [[WIP] Self-Signed Certificate](#self-signed-certificate)
 
 ## Description
