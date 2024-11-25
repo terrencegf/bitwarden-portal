@@ -62,6 +62,14 @@ purge_folder() {
 
     local folder_name=$(echo "$folder_path" | sed 's/\/app\///g')
 
+    if [ "$ENABLE_PRUNING" == "false" ]; then
+        echo "# Pruning disabled, skipping..."
+        return
+    elif [ "$ENABLE_PRUNING" != "true" ]; then
+        echo "The var ENABLE_PRUNING is invalid (only 'true' or 'false' is accepted): $ENABLE_PRUNING"
+        exit 1
+    fi
+
     echo "# Purging files in folder: $folder_name."
 
     # Find all files in the folder sorted by modification time (oldest first)

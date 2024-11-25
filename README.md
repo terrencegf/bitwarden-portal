@@ -61,7 +61,7 @@ Additionally, the script securely deletes outdated files while maintaining a min
 The script uses the following environment variables for backup and restore configuration:
 
 - **Script Config**
-  - `CRON_SCHEDULE`: Your backup cron schedule (Default `0 0 * * *`: every day at 00:00)   
+  - `CRON_SCHEDULE`: Your backup cron schedule (Default: `0 0 * * *` = every day at 00:00)   
     You can generate one at [crontab.guru](https://crontab.guru/).
 
 - **Authentication**
@@ -89,6 +89,7 @@ The script uses the following environment variables for backup and restore confi
 - **File Management**
   - `PUID`: User ID to set file permissions.
   - `PGID`: Group ID to set file permissions.
+  - `ENABLE_PRUNING`: If set to `false` no backups will be pruned. (Default: `true`)
   - `RETENTION_DAYS`: Number of days after which outdated files can be deleted. Backup older than this value will be deleted.
   - `MIN_FILES`: Minimum number of backup files to retain. If all your backups are older than RETENTION_DAYS, keep the minimum files based oh this value.
 
@@ -152,6 +153,8 @@ services:
             # The users belongs to process and files.
             - PUID="1000"
             - PGID="1000"
+            # Enable/Disable backups pruning (false/true)
+            - ENABLE_PRUNING="true"
             # Your retention policy for backup files. Backup older than this value will be deleted.
             - RETENTION_DAYS=30
             # If all your backups are older than RETENTION_DAYS, keep the following minimum files.
