@@ -1,4 +1,8 @@
 # Bitwarden Portal
+
+
+![](logo.png)
+
 [![Latest Version - 1.0.0](https://img.shields.io/badge/Latest_Version-1.0.0-0db7ed)](https://hub.docker.com/r/reaper0x1/bitwarden-portal)
 
 ## Description
