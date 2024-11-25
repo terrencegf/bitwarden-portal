@@ -21,6 +21,8 @@
 
 ## Description
 
+The goal of this project was to create a backup process of a Bitwarden vault to a self-hosted Vaultwarden instance, ensuring there is always a copy in case the official Bitwarden becomes unavailable.
+
 This docker image automates the **backup** and **restore** process for a Bitwarden vault. It provides functionalities for exporting, encrypting, and managing backup versions.
 Additionally, the script securely deletes outdated files while maintaining a minimum number of recent backups.
 
