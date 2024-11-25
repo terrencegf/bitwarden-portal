@@ -15,7 +15,7 @@
 - [Environment Variables](#environment-variables)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Docker Compose with .env file](#docker-compose-with-.env-file)
+  - [Docker Compose with .env file](#docker-compose-with-env-file)
   - [Docker Compose with env variables](#docker-compose-with-env-variables)
   - [Build Locally](#build-locally)
 - [[WIP] Self-Signed Certificate](#self-signed-certificate)
