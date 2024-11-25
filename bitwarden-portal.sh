@@ -62,6 +62,14 @@ purge_folder() {
 
     local folder_name=$(echo "$folder_path" | sed 's/\/app\///g')
 
+    if [ "$ENABLE_PRUNING" == "false" ]; then
+        echo "# Pruning disabled, skipping..."
+        return
+    elif [ "$ENABLE_PRUNING" != "true" ]; then
+        echo "The var ENABLE_PRUNING is invalid (only 'true' or 'false' is accepted): $ENABLE_PRUNING"
+        exit 1
+    fi
+
     echo "# Purging files in folder: $folder_name."
 
     # Find all files in the folder sorted by modification time (oldest first)
@@ -207,7 +215,7 @@ fix_permissions "$PUID" "$PGID" "$SOURCE_OUTPUT_FILE_PATH"
 #-----------------------#
 
 # Encrypt the exported file
-encrypt_file "$SOURCE_OUTPUT_FILE_PATH" "$ENCRYPTED_SOURCE_OUTPUT_FILE_PATH" "$ARCHIVE_PASSWORD"
+encrypt_file "$SOURCE_OUTPUT_FILE_PATH" "$ENCRYPTED_SOURCE_OUTPUT_FILE_PATH" "$ENCRYPTION_PASSWORD"
 fix_permissions "$PUID" "$PGID" "$ENCRYPTED_SOURCE_OUTPUT_FILE_PATH"
 
 # Remove the unencrypted file
@@ -313,7 +321,7 @@ fix_permissions "$PUID" "$PGID" "$DEST_OUTPUT_FILE_PATH"
 
 # Encrypt the exported file
 echo "# Encrypting exported file..."
-encrypt_file "$DEST_OUTPUT_FILE_PATH" "$ENCRYPTED_DEST_OUTPUT_FILE_PATH" "$ARCHIVE_PASSWORD"
+encrypt_file "$DEST_OUTPUT_FILE_PATH" "$ENCRYPTED_DEST_OUTPUT_FILE_PATH" "$ENCRYPTION_PASSWORD"
 fix_permissions "$PUID" "$PGID" "$ENCRYPTED_DEST_OUTPUT_FILE_PATH"
 
 sleep 1
@@ -408,7 +416,7 @@ DECRYPTED_SOURCE_OUTPUT_FILE_PATH="$SOURCE_OUTPUT_FILE_PATH" #Latest source back
 
 # Decrypt the latest backup
 echo "# Decrypting the latest backup..."
-decrypt_file "$DEST_LATEST_BACKUP" "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH" "$ARCHIVE_PASSWORD"
+decrypt_file "$DEST_LATEST_BACKUP" "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH" "$ENCRYPTION_PASSWORD"
 fix_permissions "$PUID" "$PGID" "$DECRYPTED_SOURCE_OUTPUT_FILE_PATH"
 
 
