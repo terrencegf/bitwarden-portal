@@ -5,9 +5,10 @@
   <img src="logo.png" alt=""/>
 </p>
 
-[![Docker Image - 1.0.1](https://img.shields.io/badge/Docker_Image-1.0.1-0db7ed?logo=docker)](https://hub.docker.com/r/reaper0x1/bitwarden-portal)
+[![Docker Image - 1.0.1](https://img.shields.io/docker/v/reaper0x1/bitwarden-portal/latest?logo=docker&label=Docker%20Image)](https://hub.docker.com/r/reaper0x1/bitwarden-portal)
 [![Github - Official](https://img.shields.io/badge/Github-Official-2dba4e?logo=github)](https://github.com/Reaper0x1/bitwarden-portal)
-![xxx](https://img.shields.io/badge/Shell_Script-121011?style=flat&logo=gnu-bash&logoColor=white)
+![Shell](https://img.shields.io/badge/Shell_Script-121011?style=flat&logo=gnu-bash&logoColor=white)
+
 
 ## Table of Contents
 - [Description](#description)
