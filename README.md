@@ -1,5 +1,5 @@
 # Bitwarden Portal
-
+Automate backup and restore between Bitwarden and/or Vaultwarden vault.
 
 <p align="center">
   <img src="logo.png" alt=""/>
