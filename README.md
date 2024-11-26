@@ -120,6 +120,7 @@ services:
         restart: unless-stopped
 ```
 - Change `your-backups-folder` to your backup folder.
+- Create a `.env` file and set the variables. (See `.env.example` as reference)
 
 ### Docker Compose with env variables
 ```yaml
@@ -180,7 +181,7 @@ services:
 ## Roadmap
 - Self-signed certificate with docker-compose (not only by local build).
 - Output logs.
-- Attachments backup and transfer
+- Attachments backup and transfer.
 
 ## Self-Signed Certificate
 **[WIP**]  
