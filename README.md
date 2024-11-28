@@ -107,7 +107,7 @@ The script uses the following environment variables for backup and restore confi
 ### Prerequisites
 
 1. **🐋 Docker** must be installed and configured.
-2. Configured access for source and destination vaults (using API Key credentials).
+2. Configure access for source and destination vaults (using API Key credentials).
     - To get both source and destination Client ID and Client Secret you need to go in `Account Settings` -> `Security` -> `Keys`.
 
 ### Docker Compose with .env file
