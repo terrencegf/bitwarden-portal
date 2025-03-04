@@ -132,30 +132,30 @@ services:
             # Put your cron schedule. 
             - CRON_SCHEDULE=0 0 * * *
             # Your timezone.
-            - TZ="Europe/Berlin"
+            - TZ=Europe/Berlin
             # This is the password used to encrypt and decrypt the backup files.
-            - ENCRYPTION_PASSWORD="strong-password"
+            - ENCRYPTION_PASSWORD=strong-password
             # Your Bitwarden/Vaultwarden SOURCE login info.
-            - SOURCE_ACCOUNT="source@mail.com"
-            - SOURCE_PASSWORD="source-password"
+            - SOURCE_ACCOUNT=source@mail.com
+            - SOURCE_PASSWORD=source-password
             # You can find these two in Account Settings -> Security -> Keys.
-            - SOURCE_CLIENT_ID="user.xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-            - SOURCE_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            - SOURCE_CLIENT_ID=user.xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+            - SOURCE_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             # Your source server domain/IP.
-            - SOURCE_SERVER="https://vault.bitwarden.com"
+            - SOURCE_SERVER=https://vault.bitwarden.com
             # Your Bitwarden/Vaultwarden DESTINATION login info.
-            - DEST_ACCOUNT="dest@mail.com"
-            - DEST_PASSWORD="dest-password"
+            - DEST_ACCOUNT=dest@mail.com
+            - DEST_PASSWORD=dest-password
             # You can find these two in Account Settings -> Security -> Keys.
-            - DEST_CLIENT_ID="user.xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-            - DEST_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            - DEST_CLIENT_ID=user.xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+            - DEST_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             # Your source server domain/IP.
-            - DEST_SERVER="http://192.168.1.10:8888" #Can be https://vaultwarden.myserver.local if using self-signed certificate.
+            - DEST_SERVER=http://192.168.1.10:8888 # Can be https://vaultwarden.myserver.local if using self-signed certificate.
             # The users belongs to process and files.
-            - PUID="1000"
-            - PGID="1000"
+            - PUID=1000
+            - PGID=1000
             # Enable/Disable backups pruning (false/true)
-            - ENABLE_PRUNING="true"
+            - ENABLE_PRUNING=true
             # Your retention policy for backup files. Backup older than this value will be deleted.
             - RETENTION_DAYS=30
             # If all your backups are older than RETENTION_DAYS, keep the following minimum files.
