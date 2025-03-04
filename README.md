@@ -90,8 +90,8 @@ The script uses the following environment variables for backup and restore confi
   - `PUID`: User ID to set file permissions.
   - `PGID`: Group ID to set file permissions.
   - `ENABLE_PRUNING`: If set to `false` no backups will be pruned. (Default: `true`)
-  - `RETENTION_DAYS`: Number of days after which outdated files can be deleted. Backup older than this value will be deleted.
-  - `MIN_FILES`: Minimum number of backup files to retain. If all your backups are older than RETENTION_DAYS, keep the minimum files based oh this value.
+  - `RETENTION_DAYS`: Number of days after which outdated files can be deleted. Backups older than this value will be deleted.
+  - `MIN_FILES`: Minimum number of backup files to retain. If all your backups are older than RETENTION_DAYS, keep the minimum files based on this value.
 
 ### Directories Created
 
