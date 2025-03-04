@@ -130,7 +130,7 @@ services:
         container_name: bitwarden-portal
         environment:
             # Put your cron schedule. 
-            - CRON_SCHEDULE=0 0 * * *      \
+            - CRON_SCHEDULE=0 0 * * *
             # Your timezone.
             - TZ="Europe/Berlin"
             # This is the password used to encrypt and decrypt the backup files.
